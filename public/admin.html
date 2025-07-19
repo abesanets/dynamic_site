@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель</title>    
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="admin.css">
+</head>
+<body>
+    <div class="admin-container">
+        <header class="admin-header">
+            <div class="admin-title">
+                <i class="fas fa-lock"></i>
+                <h1>Панель управления сайтом</h1>
+            </div>
+            <button class="admin-logout" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                Выйти
+            </button>
+            <script>
+                function logout() {
+                    window.location.href = "/logout";
+                }
+            </script>
+        </header>
+        
+        <div class="admin-content">
+            <nav class="admin-sidebar">
+                <h3 class="admin-nav-title"><i class="fas fa-tachometer-alt"></i> Главное меню</h3>
+                <ul class="admin-nav-list">
+                    <li class="admin-nav-item">
+                        <a href="#" class="admin-nav-link active" data-section="dashboard">
+                            <i class="fas fa-home"></i>
+                            Рабочий стол
+                        </a>
+                    </li>
+                    <li class="admin-nav-item">
+                        <a href="#" class="admin-nav-link" data-section="gallery">
+                            <i class="fas fa-images"></i>
+                            Управление галереей
+                        </a>
+                    </li>
+                    <li class="admin-nav-item">
+                        <a href="#" class="admin-nav-link" data-section="materials">
+                            <i class="fas fa-newspaper"></i>
+                            Управление материалами
+                        </a>
+                    </li>
+                    <li class="admin-nav-item">
+                        <a href="#" class="admin-nav-link" data-section="settings">
+                            <i class="fas fa-cog"></i>
+                            Настройки сайта
+                        </a>
+                    </li>                    
+                    <li class="admin-nav-item">
+                        <a href="#" class="admin-nav-link" data-section="security">
+                            <i class="fas fa-lock"></i>
+                                Безопасность
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <main class="admin-main">
+                <section id="dashboard" class="admin-section active">
+                    <h1 class="section-title">Статистика</h1>
+                    <div class="stats-grid">                        
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-images"></i></div>
+                            <div class="stat-value" id="count-gallery">0</div>
+                            <div class="stat-label">Изображений в галерее</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
+                            <div class="stat-value" id="count-materials">0</div>
+                            <div class="stat-label">Материалов на сайте</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-users"></i></div>
+                            <div class="stat-value" id="count-visitors">0</div>
+                            <div class="stat-label">Посетителей сейчас на сайте</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-briefcase"></i></div>
+                            <div class="stat-value" >Made</div>
+                            <div class="stat-label">by @besanets</div>
+                        </div>
+                    </div>                                              
+                </section>
+                
+                <section id="gallery" class="admin-section">
+                    <h1 class="section-title">Управление галереей</h1>
+                    
+                    <form id="uploadForm" class="admin-form" enctype="multipart/form-data">                        
+                        <h3 class="section-title">Добавление изображения</h3>
+                        <div class="form-group">
+                            <label class="form-label">Название изображения</label>
+                            <input type="text" id="imgTitle" name="title" class="form-input" placeholder="Введите название" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Загрузка изображения</label>
+                            <div class="file-upload" id="fileUpload">
+                                <input type="file" id="imgFile" name="image" accept="image/*" hidden>
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p id="uploadText">Перетащите изображение сюда или нажмите для выбора</p>
+                                <button type="button" class="form-btn" id="fileBtn">
+                                    <i class="fas fa-folder-open"></i>
+                                    Выбрать файл
+                                </button>
+                            </div>
+                        </div>
+                        <button type="submit" class="form-btn">
+                            <i class="fas fa-upload"></i> Загрузить изображение
+                        </button>
+                    </form>
+                    
+                    <div class="admin-form">
+                        <h3 class="section-title">Существующие изображения</h3>
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Картинка</th>
+                                    <th>Название</th>
+                                    <th>Дата создания</th>
+                                    <th>Удалить</th>
+                                </tr>
+                            </thead>
+                            <tbody id="galleryTable"></tbody>
+                        </table>
+                    </div>
+                </section>
+                
+                <section id="materials" class="admin-section">
+                    <h1 class="section-title">Управление материалами</h1>
+                    <form id="materialForm" class="admin-form" enctype="multipart/form-data">
+                        <h3 class="section-title">Добавление материала</h3>
+                        <div class="form-group">
+                            <label class="form-label">Заголовок</label>
+                            <input type="text" id="matTitle" name="title" class="form-input" placeholder="Введите заголовок материала" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Содержание</label>
+                            <textarea id="matContent" name="content" class="form-textarea" placeholder="Напишите содержание материала" style="min-height:250px;" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Изображение для материала</label>
+                            <div class="file-upload" id="matFileUpload">
+                                <input type="file" id="matImage" name="image" accept="image/*" hidden>
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p id="matUploadText">Перетащите изображение или нажмите</p>
+                                <button type="button" class="form-btn" id="matFileBtn">
+                                    <i class="fas fa-folder-open"></i> Выбрать файл
+                                </button>
+                            </div>
+                        </div>
+                        <button type="submit" class="form-btn">
+                            <i class="fas fa-plus-circle"></i> Создать материал
+                        </button>
+                    </form>
+                    
+                    <div class="admin-form">
+                        <h3 class="section-title">Существующие материалы</h3>
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Заголовок</th>
+                                    <th>Дата создания</th>
+                                    <th>Статус</th>
+                                    <th>Удалить</th>
+                                </tr>
+                            </thead>
+                            <tbody id="materialsTable"></tbody>
+                        </table>
+                    </div>
+                </section>
+                
+                <section id="settings" class="admin-section">
+                    <h2 class="section-title">Настройки сайта</h2>
+                    <form id="settingsForm" class="admin-form" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label class="form-label">Название сайта</label>
+                            <input id="sitename" name="sitename" class="form-input" required></input>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Описание сайта</label>
+                            <textarea id="description" name="description" class="form-textarea" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Краткий слоган (4 слова)</label>
+                            <input type="text" id="slogan" name="slogan" class="form-input" required>
+                        </div>                            
+                        <div class="form-group">
+                            <label class="form-label">Изображение для главной страницы</label>
+                            <div class="file-upload" id="homeFileUpload">
+                                <input type="file" id="homeImage" name="image" accept="image/*" hidden>
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p id="homeUploadText">Перетащите изображение или нажмите</p>
+                                <button type="button" class="form-btn" id="homeFileBtn">
+                                    <i class="fas fa-folder-open"></i> Выбрать файл
+                                </button>
+                            </div>
+                        </div>
+                        
+
+                        <!-- храним текущее имя файла, если новый не выбран -->
+                        <input type="hidden" id="currentImage" name="currentImage">                        
+                        <button type="submit" class="form-btn">
+                            <i class="fas fa-save"></i> Сохранить настройки
+                        </button>
+                    </form>
+
+                    <!-- <div class="admin-form">
+                        <h3 class="section-title">Внешний вид</h3>
+                        <div class="form-group">
+                            <label class="form-label">Цветовая тема</label>
+                            <div style="display: flex; gap: 15px; margin-top: 10px;">
+                                <div style="background: #6c5ce7; width: 40px; height: 40px; border-radius: 8px; cursor: pointer; border: 2px solid #fff;"></div>
+                                <div style="background: #fd79a8; width: 40px; height: 40px; border-radius: 8px; cursor: pointer;"></div>
+                                <div style="background: #00b894; width: 40px; height: 40px; border-radius: 8px; cursor: pointer;"></div>
+                                <div style="background: #0984e3; width: 40px; height: 40px; border-radius: 8px; cursor: pointer;"></div>
+                            </div>
+                        </div>
+                        <button class="form-btn">
+                            <i class="fas fa-save"></i>
+                            Сохранить изменения
+                        </button>
+                    </div> -->
+                </section>
+                
+                <section id="security" class="admin-section">
+                    <h2 class="section-title">Изменение пароля</h2>
+                    
+                    <div class="admin-form">
+                        <form id="changePassForm">
+                            <div class="form-group">
+                                <label class="form-label" for="oldPass">Текущий пароль</label>
+                                <input type="password" id="oldPass" name="oldPass" class="form-input" placeholder="Введите текущий пароль" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="newPass">Новый пароль</label>
+                                <input type="password" id="newPass" name="newPass" class="form-input" placeholder="Введите новый пароль" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="passKey">Ключ подтверждения</label>
+                                <input type="text" id="passKey" name="passKey" class="form-input" placeholder="Введите ключ подтверждения" required>
+                            </div>
+
+                            <button type="submit" class="form-btn">
+                                <i class="fas fa-shield-alt"></i>
+                                Изменить пароль
+                            </button>
+                        </form>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+    <!-- Скрипт -->
+    <script src="/admin.js" defer></script>
+</body>
+</html>
