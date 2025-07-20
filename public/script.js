@@ -221,15 +221,30 @@ function setupMaterialSearch() {
   input.addEventListener('input', () => {
     const query = input.value.trim().toLowerCase();
 
+    let found = false;
+
     cards.forEach(card => {
       const titleEl = card.querySelector('.item-title');
       const title = titleEl ? titleEl.textContent.toLowerCase() : '';
 
-      // Показываем карточку, если в title есть подстрока query
-      card.style.display = title.includes(query) ? '' : 'none';
+      if (title.includes(query)) {
+        card.style.display = '';
+        found = true;
+      } else {
+        card.style.display = 'none';
+      }
     });
+
+    // Если найден хотя бы один результат, сделать плавный скролл к первой подходящей карточке
+    if (found) {
+      const firstVisibleCard = Array.from(cards).find(card => card.style.display !== 'none');
+      if (firstVisibleCard) {
+        firstVisibleCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
   });
 }
+
 
 // Инициализируем загрузку при старте
 window.addEventListener('DOMContentLoaded', loadMaterials);

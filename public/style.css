@@ -428,7 +428,7 @@ nav.scrolled {
 .form-label {
   display: block;
   text-align: center;
-  margin-bottom: 8px;
+  margin-bottom: 18px;
   margin-top: -78px;
   font-weight: 1000;
   font-size: 25px;
@@ -461,6 +461,11 @@ nav.scrolled {
     max-width: 1200px;
     width: 100%;
 }
+
+html {
+  scroll-behavior: smooth;
+}
+
 
 .material-card {
     background: rgba(255, 255, 255, 0.05);
