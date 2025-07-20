@@ -421,6 +421,38 @@ nav.scrolled {
 #materials {
     background: var(--gradient-dark-3);
 }
+.form-group {
+  margin-bottom: 20px; /* или свой отступ */
+}
+
+.form-label {
+  display: block;
+  text-align: center;
+  margin-bottom: 8px;
+  margin-top: -78px;
+  font-weight: 1000;
+  font-size: 25px;
+  color: var(--secondary);
+}
+
+.form-input {
+  width: 300px;
+  padding: 10px 10px;
+  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: rgba(26, 26, 46, 0.7);
+  color: var(--light);
+  font-size: 20px;
+  text-align: center;
+  transition: var(--transition);
+}
+
+.form-input:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.3);
+}
+
 
 .materials-container {
     display: grid;

@@ -184,6 +184,7 @@ function setupBackToTop() {
 }
 
 /* ==================== ЗАГРУЗКА МАТЕРИАЛОВ ==================== */
+// Загружаем материалы и рендерим карточки
 async function loadMaterials() {
   const res = await fetch('/materials');
   const items = await res.json();
@@ -198,7 +199,7 @@ async function loadMaterials() {
         <img src="/uploads/${m.image}" alt="${m.title}">
       </div>
       <div class="card-content">
-        <h3>${m.title}</h3>
+        <h3 class="item-title">${m.title}</h3>
         <p>${m.content}</p>
         <div class="date">
           <i class="far fa-calendar"></i>
@@ -208,7 +209,31 @@ async function loadMaterials() {
     `;
     container.appendChild(div);
   });
+
+  setupMaterialSearch();   // <-- после рендера привязываем фильтр
 }
+
+// Функция фильтрации по названию
+function setupMaterialSearch() {
+  const input = document.getElementById('materialSearch');
+  const cards = document.querySelectorAll('.material-card');
+
+  input.addEventListener('input', () => {
+    const query = input.value.trim().toLowerCase();
+
+    cards.forEach(card => {
+      const titleEl = card.querySelector('.item-title');
+      const title = titleEl ? titleEl.textContent.toLowerCase() : '';
+
+      // Показываем карточку, если в title есть подстрока query
+      card.style.display = title.includes(query) ? '' : 'none';
+    });
+  });
+}
+
+// Инициализируем загрузку при старте
+window.addEventListener('DOMContentLoaded', loadMaterials);
+
 
 /* ==================== ЗАГРУЗКА ГЛАВНОЙ СТРАНИЦЫ ==================== */
 async function loadMain() {
