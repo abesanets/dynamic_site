@@ -241,5 +241,47 @@ app.post('/admin/save-settings', uploadMain.single('image'), (req, res) => {
 });
 
 
+// В самом верху файла
+const fsPromises = require('fs/promises');
+
+async function cleanupUploadsDir() {
+  try {
+    // создаём папку, если нет
+    await fsPromises.mkdir(UPLOAD_DIR2, { recursive: true });
+
+    // читаем её содержимое
+    const files = await fsPromises.readdir(UPLOAD_DIR2);
+    if (files.length <= 1) return; // нечего чистить
+
+    // получаем информацию о каждом файле
+    const stats = await Promise.all(files.map(async file => {
+      const filepath = path.join(UPLOAD_DIR2, file);
+      const stat     = await fsPromises.stat(filepath);
+      return { file, mtime: stat.mtime };
+    }));
+
+    // сортируем по времени модификации, старые — в начало
+    stats.sort((a, b) => a.mtime - b.mtime);
+
+    // удаляем все, кроме самого нового (последнего в массиве)
+    const toDelete = stats.slice(0, stats.length - 1);
+    await Promise.all(toDelete.map(({ file }) =>
+      fsPromises.unlink(path.join(UPLOAD_DIR2, file))
+    ));
+
+    console.log(`🧹 Удалено ${toDelete.length} старых файла(ов), оставлен: ${stats[stats.length - 1].file}`);
+  } catch (err) {
+    console.error('Ошибка при очистке uploads2:', err);
+  }
+}
+
+// Запускаем один раз при старте сервера
+cleanupUploadsDir();
+
+// А теперь — каждые 24 часа (24 ч * 60 мин * 60 сек * 1000 мс)
+setInterval(cleanupUploadsDir, 24 * 60 * 60 * 1000);
+
+
+
 /* ==================== ЗАПУСК СЕРВЕРА ==================== */
 app.listen(PORT, () => console.log(`Сервер работает на http://localhost:${PORT} 🔥`));
