@@ -20,7 +20,7 @@ let materialsData      = [];  // будем заполнять динамиче�
 /* ==================== ПРЕЛОАДЕР ==================== */
 window.addEventListener('load', () => {
   preloader.classList.add('hide');
-  setTimeout(() => preloader.remove(), 2500);
+  setTimeout(() => preloader.remove(), 1500);
 });
 
 /* ==================== ПЛАВНАЯ ПРОКРУТКА ==================== */
