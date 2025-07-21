@@ -210,7 +210,8 @@ async function loadMaterials() {
     container.appendChild(div);
   });
 
-  setupMaterialSearch();   // <-- после рендера привязываем фильтр
+  setupMaterialSearch();
+  initMaterialsModal()   // <-- после рендера привязываем фильтр
 }
 
 // Функция фильтрации по названию
