@@ -5,8 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="heroSitename">Can't load title 😢</title>
     <link rel="icon" type="image/png" href="/favicon.png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" type="text/css" href="style.css">    
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    >
+    <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
     <!-- Прелоадер -->
@@ -35,7 +38,11 @@
                 <li><a href="service.html#contact">Контакты</a></li>
             </ul>
             <div class="theme-switch-wrapper">
-                <input type="checkbox" id="theme-checkbox" class="switch-theme">
+                <input
+                    type="checkbox"
+                    id="theme-checkbox"
+                    class="switch-theme"
+                >
             </div>
         </div>
     </nav>
@@ -44,21 +51,21 @@
     <div class="menu-overlay" id="menu-overlay"></div>
 
     <!-- Главная страница -->
-  <section id="home" class="page">
-    <div class="hero-content">
-      <div class="hero-text">
-        <h1 id="heroTitle">Loading…</h1>
-        <p id="heroDesc">Loading…</p>
-        <a href="#gallery" class="btn">See our works</a>
-      </div>
-      <div class="hero-image" id="homeImage">
-        <!-- здесь JS вставит картинку -->
-      </div>
-    </div>
-    <div class="scroll-down">
-      <i class="fas fa-chevron-down"></i>
-    </div>
-  </section>
+    <section id="home" class="page">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1 id="heroTitle">Loading…</h1>
+                <p id="heroDesc">Loading…</p>
+                <a href="#gallery" class="btn">See our works</a>
+            </div>
+            <div class="hero-image" id="homeImage">
+                <!-- здесь JS вставит картинку -->
+            </div>
+        </div>
+        <div class="scroll-down">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
 
     <!-- Галерея -->
     <section id="gallery" class="page">
@@ -71,40 +78,24 @@
     <!-- Материалы -->
     <section id="materials" class="page">
         <h2 class="section-title">Materials</h2>
+
         <!-- Поле поиска -->
         <div class="form-group" style="margin: 50px 0;">
-  <label for="materialSearch" class="form-label">Поиск по материалам</label>
-  <input 
-    type="text" 
-    id="materialSearch" 
-    class="form-input" 
-    placeholder="Введите название материала"
-  >
-</div>
+            <label for="materialSearch" class="form-label">
+                Поиск по материалам
+            </label>
+            <input
+                type="text"
+                id="materialSearch"
+                class="form-input"
+                placeholder="Введите название материала"
+            >
+        </div>
 
         <div class="materials-container" id="materialsContainer">
             <!-- JS заполнит сам -->
         </div>
     </section>
-
-    <!-- Модальное окно -->
-    <div id="material-modal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <div class="modal-nav">
-                <button id="prev-btn"><i class="fas fa-chevron-left"></i></button>
-                <button id="next-btn"><i class="fas fa-chevron-right"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="modal-img"></div>
-                <div class="modal-text">
-                    <h2 id="modal-title"></h2>
-                    <div class="modal-date"></div>
-                    <p id="modal-content"></p>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Футер -->
     <footer>
@@ -112,12 +103,16 @@
             <a href="#"><i class="fab fa-facebook-f"></i></a>
             <a href="#"><i class="fab fa-twitter"></i></a>
             <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-telegram"></i></a>
             <a href="#"><i class="fab fa-linkedin-in"></i></a>
-            <a href="#"><i class="fab fa-dribbble"></i></a>
         </div>
         <p class="copyright">
-            <a href="login.html" style="text-decoration: none; color: inherit;">©</a> 2025 <span id="heroSitename3">Can't load title 😢</span>. Все права защищены.
-    </p>
+            <a
+                href="login.html"
+                style="text-decoration: none; color: inherit;"
+            >©</a>
+            2025 <span id="heroSitename3">Can't load title 😢</span>. Все права защищены.
+        </p>
     </footer>
 
     <!-- Кнопка вверх -->

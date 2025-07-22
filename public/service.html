@@ -434,7 +434,7 @@
         
         /* Контактная секция с неоновым эффектом */
         .contact-section {
-            min-height: 100vh;
+            min-height: 70vh;
             padding: 150px 50px 100px;
             position: relative;
             overflow: hidden;
@@ -503,6 +503,45 @@
             transform: scale(1.05);
             box-shadow: 0 0 40px rgba(253, 121, 168, 0.8);
             border-color: var(--accent);
+        }
+
+        /* Футер */
+        .article-footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 40px 0;
+            border-top: 1px solid rgba(108, 92, 231, 0.2);
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .social-links a {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(162, 155, 254, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--light);
+            font-size: 1.2rem;
+            transition: var(--transition);
+        }
+        
+        .social-links a:hover {
+            background: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+        }
+        
+        .copyright {
+            color: var(--secondary);
+            font-size: 0.9rem;
         }
 
 /* ==================== КНОПКА "НАВЕРХ" ==================== */
@@ -722,6 +761,17 @@
             ЗАКАЗАТЬ ЭКСПЕРТНЫЙ РАЗБОР
         </a>
     </section>
+
+    <footer class="article-footer">
+            <div class="social-links">
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>                
+                <a href="#"><i class="fab fa-telegram"></i></a>
+                <a href="#"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+            <p class="copyright">© 2025 Creative Studio. Все права защищены.</p>
+        </footer>
 
     <!-- Кнопка вверх -->
     <button id="toTopBtn" class="back-to-top">
