@@ -199,6 +199,8 @@
         }
         
         .cta-button {
+            display: flex;
+            justify-content: center;
             display: inline-flex;
             align-items: center;
             padding: 18px 45px;
@@ -479,7 +481,7 @@
         
         .form-btn {
             display: inline-flex;
-            align-items: center;
+            align-items: center !important; 
             padding: 20px 50px;
             background: transparent;
             color: white;
@@ -521,6 +523,40 @@
             box-shadow: 0 0 40px rgba(253, 121, 168, 0.8);
             border-color: var(--accent);
         }
+
+/* Модалка */
+.modal {
+  position: fixed;
+  top: 0; left: 0; right:0; bottom:0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+.modal-content {
+  background: var(--dark);
+  padding: 30px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.close {
+  position: absolute;
+  top: 12px; right: 16px;
+  font-size: 24px;
+  color: var(--light);
+  cursor: pointer;
+}
+/* Подправим .form-group внутри модалки */
+#requestModal .form-group { margin-bottom: 20px; }
+/* И уберём фиксированную ширину, чтобы вписалось */
+#requestModal .form-input,
+#requestModal .form-textarea {
+  width: 100%;
+}
 
         /* Стили для формы */
 .form-group {
@@ -712,7 +748,12 @@
     opacity: 1;
     visibility: visible;
 }
-
+.fullpage-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
         
         /* Анимации */
         @keyframes fadeInUp {
@@ -801,7 +842,7 @@
             <li><a href="index.html#gallery">Галерея</a></li>
             <li><a href="index.html#materials">Материалы</a></li>
             <li><a href="#hero-service">Услуги</a></li>
-            <li><a href="#request-section">Контакты</a></li>
+            <li><a href="#openModal">Контакты</a></li>
         </ul>
     </nav>
 
@@ -888,38 +929,83 @@
         </div>
     </section>
 
-<section class="contact-section" id="request-section">
-<h2 class="contact-title">ГОТОВЫ УНИЧТОЖИТЬ КОНКУРЕНТОВ?</h2>
-<p class="contact-subtitle">Оставьте заявку и получите бесплатную стратегию продвижения вашего бизнеса в цифровом пространстве</p>
-  <form id="requestForm">
-    <div class="form-group">
-      <label class="form-label" for="requestContact">Ваш email или Telegram‑username</label>
-      <input
-        type="text"
-        id="requestContact"
-        name="contact"
-        class="form-input"
-        required
-      />
-    </div>
-    <div class="form-group">
-      <label class="form-label" for="requestMessage">Текст сообщения</label>
-      <textarea
-        id="requestMessage"
-        name="message"
-        class="form-textarea"
-        rows="5"
-        required
-      ></textarea>
-    </div>
-    <button type="submit" class="form-btn">
-            <i class="fas fa-paper-plane" style="margin-right: 15px;"></i>
-            ЗАКАЗАТЬ ЭКСПЕРТНЫЙ РАЗБОР
-        </a>
-    </button>
-    <div id="requestResult"></div>
-  </form>
-</section>
+<!-- Кнопка-открытие модалки -->
+ <div class="fullpage-center">
+<button id="openModal" class="form-btn">
+  <i class="fas fa-fire" style="margin-right: 15px;"></i>
+  ЗАКАЗАТЬ ВЗРЫВНОЙ САЙТ
+</button>
+</div>
+
+<!-- Модальное окно -->
+<div id="requestModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <span id="closeModal" class="close">&times;</span>
+    <h2>Оставить заявку</h2>
+
+    <form id="modalRequestForm" novalidate>
+      <!-- Телефон -->
+      <div class="form-group">
+        <input
+          type="tel"
+          id="modalPhone"
+          name="phone"
+          class="form-input"
+          placeholder="+71234567890"
+          pattern="^\+?\d{10,15}$"
+          required
+        />
+        <label class="form-label" for="modalPhone">
+          Номер телефона
+        </label>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <input
+          type="email"
+          id="modalEmail"
+          name="email"
+          class="form-input"
+          placeholder="example@mail.com"
+          required
+        />
+        <label class="form-label" for="modalEmail">
+          Email
+        </label>
+      </div>
+
+      <!-- Сообщение -->
+      <div class="form-group">
+        <textarea
+          id="modalMessage"
+          name="message"
+          class="form-textarea"
+          rows="4"
+          placeholder="Опишите задачу…"
+          required
+        ></textarea>
+        <label class="form-label" for="modalMessage">
+          Текст сообщения
+        </label>
+      </div>
+
+      <!-- Согласие -->
+      <div class="form-group" style="display:flex; align-items:center; gap:8px;">
+        <input type="checkbox" id="modalAgree" name="agree" required />
+        <label class="form-label" for="modalAgree" style="margin:0; font-size:0.9rem;">
+          Я согласен на обработку персональных данных
+        </label>
+      </div>
+
+      <button type="submit" class="form-btn" style="margin-top:20px;">
+        Отправить заявку
+      </button>
+
+      <div id="modalResult" style="margin-top:15px; font-weight:bold;"></div>
+    </form>
+  </div>
+</div>
 
     <footer class="article-footer">
             <div class="social-links">
@@ -938,57 +1024,92 @@
     </button>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const form   = document.getElementById('requestForm');
-  const result = document.getElementById('requestResult');
+  const openBtn  = document.getElementById('openModal');
+  const modal    = document.getElementById('requestModal');
+  const closeBtn = document.getElementById('closeModal');
+
+  // Открыть/закрыть
+  openBtn.addEventListener('click', () => modal.style.display = 'flex');
+  closeBtn.addEventListener('click', () => modal.style.display = 'none');
+  modal.addEventListener('click', e => { if (e.target === modal) modal.style.display = 'none'; });
+
+  const form   = document.getElementById('modalRequestForm');
+  const result = document.getElementById('modalResult');
 
   form.addEventListener('submit', async e => {
     e.preventDefault();
     result.textContent = '';
 
-    // Ищем по новым id
-    const contactEl = document.getElementById('requestContact');
-    const messageEl = document.getElementById('requestMessage');
+    const phoneEl   = document.getElementById('modalPhone');
+    const emailEl   = document.getElementById('modalEmail');
+    const messageEl = document.getElementById('modalMessage');
+    const agreeEl   = document.getElementById('modalAgree');
 
-    if (!contactEl || !messageEl) {
+    // Чекбокс
+    if (!agreeEl.checked) {
       result.style.color = 'red';
-      result.textContent = 'Ошибка формы: поле не найдено';
+      result.textContent = 'Нужно согласиться на обработку данных';
+      agreeEl.focus();
       return;
     }
 
-    const contact = contactEl.value.trim();
-    const message = messageEl.value.trim();
-
-    if (!contact || !message) {
+    // Валидация телефона
+    if (!phoneEl.checkValidity()) {
       result.style.color = 'red';
-      result.textContent = 'Пожалуйста, заполните все поля.';
+      result.textContent = 'Введите корректный номер телефона';
+      phoneEl.focus();
       return;
     }
+    // Валидация email
+    if (!emailEl.checkValidity()) {
+      result.style.color = 'red';
+      result.textContent = 'Введите корректный email';
+      emailEl.focus();
+      return;
+    }
+    // Валидация сообщения
+    if (!messageEl.checkValidity()) {
+      result.style.color = 'red';
+      result.textContent = 'Напишите сообщение';
+      messageEl.focus();
+      return;
+    }
+
+    // Подготовка данных
+    const payload = {
+      phone: phoneEl.value.trim(),
+      email: emailEl.value.trim(),
+      message: messageEl.value.trim()
+    };
 
     result.style.color = 'black';
     result.textContent = 'Отправка…';
 
     try {
       const res = await fetch('/request', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contact, message })
+        method:  'POST',
+        headers: {'Content-Type':'application/json'},
+        body:    JSON.stringify(payload)
       });
-
       const data = await res.json();
+
       if (res.ok && data.success) {
         result.style.color = 'green';
-        result.textContent = 'Заявка отправлена! Спасибо.';
+        result.textContent = 'Заявка успешно отправлена!';
         form.reset();
+        setTimeout(() => modal.style.display = 'none', 1200);
       } else {
-        throw new Error(data.error || 'Сервер вернул ошибку');
+        throw new Error(data.error || 'Ошибка сервера');
       }
     } catch (err) {
       console.error(err);
       result.style.color = 'red';
-      result.textContent = 'Ошибка при отправке: ' + err.message;
+      result.textContent = 'Ошибка: ' + err.message;
     }
   });
 });
+
+
 
  const toTopBtn = document.getElementById('toTopBtn');
 

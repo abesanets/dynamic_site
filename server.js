@@ -298,28 +298,20 @@ app.use(express.json());
 
 // Маршрут для формы заявки
 app.post('/request', async (req, res) => {
-  console.log('=== POST /request ===', req.body);
-  const { contact, message } = req.body;
-
-  if (!contact || !message) {
-    console.log('❌ Validation failed');
-    return res.status(400).json({ error: 'Необходимо указать контакт и сообщение.' });
+  const { phone, email, message } = req.body;
+  if (!phone || !email || !message) {
+    return res.status(400).json({ error: 'Все поля обязательны' });
   }
-
-  const text = 
-    `📨 *Новая заявка с сайта!*\n\n` +
-    `👤 *Контакт:* ${contact}\n\n` +
-    `💬 *Сообщение:*\n${message}`;
-
-  try {
-    await bot.sendMessage(GROUP_ID, text, { parse_mode: 'Markdown' });
-    console.log('✅ Отправлено в Telegram');
-    res.json({ success: true });
-  } catch (err) {
-    console.error('❌ Ошибка отправки в Telegram:', err);
-    res.status(500).json({ error: 'Не удалось отправить заявку.' });
-  }
+  // Формируем текст для Telegram
+  const msg = 
+    `📨 *Новая заявка!*\n\n` +
+    `📞 Телефон: ${phone}\n` +
+    `✉️ Email: ${email}\n\n` +
+    `💬 ${message}`;
+  await bot.sendMessage(GROUP_ID, msg, { parse_mode: 'Markdown' });
+  res.json({ success: true });
 });
+
 
 
 
