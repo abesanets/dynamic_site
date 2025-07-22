@@ -460,7 +460,7 @@
             margin-right: auto;
         }
         
-        .contact-button {
+        .form-btn {
             display: inline-flex;
             align-items: center;
             padding: 20px 50px;
@@ -481,7 +481,7 @@
             animation: pulse 2s infinite;
         }
         
-        .contact-button:before {
+        .form-btn:before {
             content: '';
             position: absolute;
             top: 0;
@@ -494,16 +494,135 @@
             opacity: 1;
         }
         
-        .contact-button:hover:before {
+        .form-btn:hover:before {
             opacity: 0.9;
             filter: brightness(1.2);
         }
         
-        .contact-button:hover {
+        .form-btn:hover {
             transform: scale(1.05);
             box-shadow: 0 0 40px rgba(253, 121, 168, 0.8);
             border-color: var(--accent);
         }
+
+        /* Стили для формы */
+.form-group {
+    margin-bottom: 40px;
+    position: relative;
+    z-index: 2;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 15px;
+    color: #a29bfe; /* secondary color */
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+    transition: all 0.4s ease;
+    transform-origin: left top;
+}
+
+.form-input, .form-textarea {
+    width: 600px;
+    padding: 18px 25px;
+    background: rgba(10, 10, 26, 0.7);
+    border: 2px solid rgba(108, 92, 231, 0.3);
+    border-radius: 15px;
+    color: white;
+    font-size: 1.1rem;
+    font-family: 'Montserrat', 'Segoe UI', sans-serif;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    outline: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(5px);
+}
+
+.form-textarea {
+    min-height: 150px;
+    resize: vertical;
+}
+
+.form-input:focus, .form-textarea:focus {
+    border-color: #6c5ce7;
+    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.3), 
+                0 10px 25px rgba(0, 0, 0, 0.3);
+    background: rgba(10, 10, 26, 0.9);
+}
+
+.form-input:hover, .form-textarea:hover {
+    border-color: rgba(108, 92, 231, 0.5);
+}
+
+/* Анимация лейбла при фокусе */
+.form-input:focus ~ .form-label, 
+.form-textarea:focus ~ .form-label {
+    color: #fd79a8;
+    transform: translateY(-5px) scale(0.95);
+}
+
+/* Анимация плейсхолдера */
+.form-input::placeholder, .form-textarea::placeholder {
+    color: #636e9b;
+    transition: all 0.3s ease;
+}
+
+.form-input:focus::placeholder, 
+.form-textarea:focus::placeholder {
+    color: #a29bfe;
+    transform: translateX(5px);
+}
+
+/* Эффект свечения при валидации */
+.form-input:valid, .form-textarea:valid {
+    border-color: rgba(76, 209, 96, 0.3);
+}
+
+.form-input:valid:focus, .form-textarea:valid:focus {
+    box-shadow: 0 0 0 3px rgba(76, 209, 96, 0.2);
+}
+
+/* Иконки для полей */
+.form-group::before {
+    content: "";
+    position: absolute;
+    top: 55px;
+    right: 25px;
+    width: 24px;
+    height: 24px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.6;
+    transition: all 0.3s ease;
+}
+
+.form-input:focus ~ .form-group::before, 
+.form-textarea:focus ~ .form-group::before {
+    opacity: 1;
+    transform: translateY(-5px);
+}
+
+/* Анимация при появлении */
+.form-group {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeInUp 0.8s forwards;
+}
+
+.form-group:nth-child(1) {
+    animation-delay: 0.2s;
+}
+
+.form-group:nth-child(2) {
+    animation-delay: 0.4s;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
         /* Футер */
         .article-footer {
@@ -665,7 +784,7 @@
             <li><a href="index.html#gallery">Галерея</a></li>
             <li><a href="index.html#materials">Материалы</a></li>
             <li><a href="#hero-service">Услуги</a></li>
-            <li><a href="#contact">Контакты</a></li>
+            <li><a href="#request-section">Контакты</a></li>
         </ul>
     </nav>
 
@@ -752,15 +871,38 @@
         </div>
     </section>
 
-    <!-- Контакты -->
-    <section class="contact-section" id="contact">
-        <h2 class="contact-title">ГОТОВЫ УНИЧТОЖИТЬ КОНКУРЕНТОВ?</h2>
-        <p class="contact-subtitle">Оставьте заявку и получите бесплатную стратегию продвижения вашего бизнеса в цифровом пространстве</p>
-        <a href="https://t.me/BESANETS" class="contact-button">
+<section class="contact-section" id="request-section">
+<h2 class="contact-title">ГОТОВЫ УНИЧТОЖИТЬ КОНКУРЕНТОВ?</h2>
+<p class="contact-subtitle">Оставьте заявку и получите бесплатную стратегию продвижения вашего бизнеса в цифровом пространстве</p>
+  <form id="requestForm">
+    <div class="form-group">
+      <label class="form-label" for="requestContact">Ваш email или Telegram‑username</label>
+      <input
+        type="text"
+        id="requestContact"
+        name="contact"
+        class="form-input"
+        required
+      />
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="requestMessage">Текст сообщения</label>
+      <textarea
+        id="requestMessage"
+        name="message"
+        class="form-textarea"
+        rows="5"
+        required
+      ></textarea>
+    </div>
+    <button type="submit" class="form-btn">
             <i class="fas fa-paper-plane" style="margin-right: 15px;"></i>
             ЗАКАЗАТЬ ЭКСПЕРТНЫЙ РАЗБОР
         </a>
-    </section>
+    </button>
+    <div id="requestResult"></div>
+  </form>
+</section>
 
     <footer class="article-footer">
             <div class="social-links">
@@ -772,13 +914,65 @@
             </div>
             <p class="copyright">© 2025 Creative Studio. Все права защищены.</p>
         </footer>
-
+        
     <!-- Кнопка вверх -->
     <button id="toTopBtn" class="back-to-top">
         <i class="fas fa-arrow-up"></i>
     </button>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const form   = document.getElementById('requestForm');
+  const result = document.getElementById('requestResult');
 
-    <script>
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    result.textContent = '';
+
+    // Ищем по новым id
+    const contactEl = document.getElementById('requestContact');
+    const messageEl = document.getElementById('requestMessage');
+
+    if (!contactEl || !messageEl) {
+      result.style.color = 'red';
+      result.textContent = 'Ошибка формы: поле не найдено';
+      return;
+    }
+
+    const contact = contactEl.value.trim();
+    const message = messageEl.value.trim();
+
+    if (!contact || !message) {
+      result.style.color = 'red';
+      result.textContent = 'Пожалуйста, заполните все поля.';
+      return;
+    }
+
+    result.style.color = 'black';
+    result.textContent = 'Отправка…';
+
+    try {
+      const res = await fetch('/request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contact, message })
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        result.style.color = 'green';
+        result.textContent = 'Заявка отправлена! Спасибо.';
+        form.reset();
+      } else {
+        throw new Error(data.error || 'Сервер вернул ошибку');
+      }
+    } catch (err) {
+      console.error(err);
+      result.style.color = 'red';
+      result.textContent = 'Ошибка при отправке: ' + err.message;
+    }
+  });
+});
+
  const toTopBtn = document.getElementById('toTopBtn');
 
 window.addEventListener('scroll', () => {

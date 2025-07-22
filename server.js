@@ -281,6 +281,47 @@ cleanupUploadsDir();
 // А теперь — каждые 24 часа (24 ч * 60 мин * 60 сек * 1000 мс)
 setInterval(cleanupUploadsDir, 24 * 60 * 60 * 1000);
 
+require('dotenv').config();
+const TelegramBot = require('node-telegram-bot-api');
+
+
+// Настройка Telegram
+const BOT_TOKEN = process.env.BOT_TOKEN || '8090008947:AAGoI1DrVdHEhawbvQzbmcKu0tx30Ky14BU';
+const GROUP_ID  = process.env.GROUP_ID  || '-1002564808736';
+const bot = new TelegramBot(BOT_TOKEN);
+
+// Статика
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Парсер JSON (ВАЖНО — до роутов)
+app.use(express.json());
+
+// Маршрут для формы заявки
+app.post('/request', async (req, res) => {
+  console.log('=== POST /request ===', req.body);
+  const { contact, message } = req.body;
+
+  if (!contact || !message) {
+    console.log('❌ Validation failed');
+    return res.status(400).json({ error: 'Необходимо указать контакт и сообщение.' });
+  }
+
+  const text = 
+    `📨 *Новая заявка с сайта!*\n\n` +
+    `👤 *Контакт:* ${contact}\n\n` +
+    `💬 *Сообщение:*\n${message}`;
+
+  try {
+    await bot.sendMessage(GROUP_ID, text, { parse_mode: 'Markdown' });
+    console.log('✅ Отправлено в Telegram');
+    res.json({ success: true });
+  } catch (err) {
+    console.error('❌ Ошибка отправки в Telegram:', err);
+    res.status(500).json({ error: 'Не удалось отправить заявку.' });
+  }
+});
+
+
 
 
 /* ==================== ЗАПУСК СЕРВЕРА ==================== */
