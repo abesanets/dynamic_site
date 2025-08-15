@@ -2,8 +2,9 @@ const express = require('express');
 const session = require('express-session');
 const path = require('path');
 const fs = require('fs');
+const fsPromises = require('fs/promises');
 const multer = require('multer');
-const bodyParser = require('body-parser');
+const compression = require('compression');
 
 const app = express();
 const PORT = 3000;
@@ -15,6 +16,47 @@ const GALLERY_JSON = path.join(__dirname, 'data', 'gallery.json');
 const MATERIALS_JSON = path.join(__dirname, 'data', 'materials.json');
 const CONFIG_PATH = path.join(__dirname, 'config.json');
 const CONFIRMATION_KEY = '791f136fdc926e810edd1b6643a9f3cb3029c9af726fbeed657a7fc9714168db';
+
+/* ==================== КЭШ В ПАМЯТИ ==================== */
+let cache = {
+  gallery: null,
+  materials: null,
+  config: null
+};
+
+async function warmupCache() {
+  try {
+    const [galleryRaw, materialsRaw, configRaw] = await Promise.all([
+      fsPromises.readFile(GALLERY_JSON, 'utf8').catch(() => '[]'),
+      fsPromises.readFile(MATERIALS_JSON, 'utf8').catch(() => '[]'),
+      fsPromises.readFile(CONFIG_PATH, 'utf8').catch(() => JSON.stringify({
+        sitename: '',
+        description: '',
+        slogan: '',
+        image: '',
+        password: 'admin123'
+      }))
+    ]);
+    cache.gallery = JSON.parse(galleryRaw);
+    cache.materials = JSON.parse(materialsRaw);
+    cache.config = JSON.parse(configRaw);
+  } catch (e) {
+    console.error('Ошибка warmupCache:', e);
+    if (!cache.gallery) cache.gallery = [];
+    if (!cache.materials) cache.materials = [];
+    if (!cache.config) cache.config = { sitename: '', description: '', slogan: '', image: '', password: 'admin123' };
+  }
+}
+
+function getConfig() {
+  if (!cache.config) cache.config = readConfig();
+  return cache.config;
+}
+
+function setConfig(nextCfg) {
+  cache.config = nextCfg;
+  return fsPromises.writeFile(CONFIG_PATH, JSON.stringify(nextCfg, null, 2), 'utf8');
+}
 
 /* ==================== НАСТРОЙКА MULTER ==================== */
 const galleryStorage = multer.diskStorage({
@@ -69,26 +111,14 @@ function writeJSON(file, data) {
   fs.writeFileSync(file, JSON.stringify(data, null, 2));
 }
 
-function readConfig() {
-  if (fs.existsSync(CONFIG_PATH)) {
-    return JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
-  }
-  return {
-    sitename: '',
-    description: '',
-    slogan: '',
-    image: ''
-  };
-}
-
-function writeConfig(cfg) {
-  fs.writeFileSync(CONFIG_PATH, JSON.stringify(cfg, null, 2), 'utf8');
-}
 
 /* ==================== MIDDLEWARE ==================== */
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.disable('x-powered-by');
+app.set('etag', 'strong');
+app.use(compression());
+
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: false, limit: '1mb' }));
 app.use(session({
   secret: 'YOUR_SECRET_KEY',
   resave: false,
@@ -104,8 +134,8 @@ app.use((req, res, next) => {
 });
 
 // Статические файлы
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads2', express.static(UPLOAD_DIR2));
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1d', etag: true, lastModified: true }));
+app.use('/uploads2', express.static(UPLOAD_DIR2, { maxAge: '1d', etag: true, lastModified: true }));
 
 /* ==================== АУТЕНТИФИКАЦИЯ ==================== */
 app.post('/login', (req, res) => {
@@ -119,7 +149,7 @@ app.post('/login', (req, res) => {
   }, 1500);
 });
 
-app.post('/change-password', (req, res) => {
+app.post('/change-password', async (req, res) => {
   const { oldPass, newPass, passKey } = req.body;
   if (!req.session.auth) {
     return res.status(401).json({ success: false, message: 'Не авторизованы' });
@@ -134,10 +164,10 @@ app.post('/change-password', (req, res) => {
   // обновляем переменную
   CORRECT_PASSWORD = newPass;
 
-  // перезаписываем в config.json
-  const cfg = readConfig();
+  // перезаписываем в config.json + кэш
+  const cfg = getConfig();
   cfg.password = newPass;
-  writeConfig(cfg);
+  await setConfig(cfg);
 
   return res.json({ success: true, message: 'Пароль успешно изменён!' });
 });
@@ -152,37 +182,40 @@ app.get('/logout', (req, res) => {
 
 /* ==================== ГАЛЕРЕЯ ==================== */
 app.get('/gallery', (req, res) => {
-  const items = readJSON(GALLERY_JSON);
-  res.json(items);
+  if (!cache.gallery) {
+    cache.gallery = readJSON(GALLERY_JSON);
+  }
+  res.json(cache.gallery);
 });
 
-app.post('/upload', uploadGallery.single('image'), (req, res) => {
-  const gallery = readJSON(GALLERY_JSON);
-  gallery.push({
+app.post('/upload', uploadGallery.single('image'), async (req, res) => {
+  if (!cache.gallery) cache.gallery = readJSON(GALLERY_JSON);
+  cache.gallery.push({
     filename: req.file.filename,
     title: req.body.title || '',
     date: new Date().toISOString()
   });
-  writeJSON(GALLERY_JSON, gallery);
+  await fsPromises.writeFile(GALLERY_JSON, JSON.stringify(cache.gallery, null, 2), 'utf8');
   res.json({ success: true });
 });
 
-app.post('/delete', (req, res) => {
-  let gallery = readJSON(GALLERY_JSON).filter(i => i.filename !== req.body.filename);
-  writeJSON(GALLERY_JSON, gallery);
+app.post('/delete', async (req, res) => {
+  if (!cache.gallery) cache.gallery = readJSON(GALLERY_JSON);
+  cache.gallery = cache.gallery.filter(i => i.filename !== req.body.filename);
+  await fsPromises.writeFile(GALLERY_JSON, JSON.stringify(cache.gallery, null, 2), 'utf8');
   fs.unlink(path.join(UPLOAD_DIR, req.body.filename), () => res.json({ success: true }));
 });
 
 /* ==================== МАТЕРИАЛЫ ==================== */
 app.get('/materials', (req, res) => {
-  const materials = readJSON(MATERIALS_JSON);
-  materials.sort((a, b) => new Date(b.date) - new Date(a.date));
+  if (!cache.materials) cache.materials = readJSON(MATERIALS_JSON);
+  const materials = [...cache.materials].sort((a, b) => new Date(b.date) - new Date(a.date));
   res.json(materials);
 });
 
-app.post('/materials', uploadMaterial.single('image'), (req, res) => {
-  const materials = readJSON(MATERIALS_JSON);
-  materials.push({
+app.post('/materials', uploadMaterial.single('image'), async (req, res) => {
+  if (!cache.materials) cache.materials = readJSON(MATERIALS_JSON);
+  cache.materials.push({
     id: Date.now(),
     title: req.body.title || '',
     content: req.body.content || '',
@@ -190,24 +223,25 @@ app.post('/materials', uploadMaterial.single('image'), (req, res) => {
     date: new Date().toISOString(),
     status: 'published'
   });
-  writeJSON(MATERIALS_JSON, materials);
+  await fsPromises.writeFile(MATERIALS_JSON, JSON.stringify(cache.materials, null, 2), 'utf8');
   res.json({ success: true });
 });
 
-app.post('/materials/delete', (req, res) => {
-  let materials = readJSON(MATERIALS_JSON).filter(m => m.id != req.body.id);
-  writeJSON(MATERIALS_JSON, materials);
+app.post('/materials/delete', async (req, res) => {
+  if (!cache.materials) cache.materials = readJSON(MATERIALS_JSON);
+  cache.materials = cache.materials.filter(m => m.id != req.body.id);
+  await fsPromises.writeFile(MATERIALS_JSON, JSON.stringify(cache.materials, null, 2), 'utf8');
   if (req.body.image) fs.unlink(path.join(UPLOAD_DIR, req.body.image), () => {});
   res.json({ success: true });
 });
 
 /* ==================== ГЛАВНАЯ СТРАНИЦА ==================== */
 app.get('/main', (req, res) => {
-  const cfg = readConfig();
+  const cfg = getConfig();
   res.json([cfg]);
 });
 
-app.post('/main', uploadMain.single('image'), (req, res) => {
+app.post('/main', uploadMain.single('image'), async (req, res) => {
   const { sitename, description, slogan, currentImage } = req.body;
   const cfg = {
     sitename,
@@ -215,25 +249,22 @@ app.post('/main', uploadMain.single('image'), (req, res) => {
     slogan,
     image: req.file ? '/uploads2/' + req.file.filename : currentImage
   };
-
-  writeConfig(cfg);
+  await setConfig(cfg);
   res.json({ message: 'Настройки сохранены' });
 });
 
-app.post('/admin/save-settings', uploadMain.single('image'), (req, res) => {
+app.post('/admin/save-settings', uploadMain.single('image'), async (req, res) => {
   try {
     const { sitename, description, slogan, currentImage } = req.body;
     const uploadedImage = req.file;
-
     const config = {
       sitename,
       description,
       slogan,
       image: uploadedImage ? '/uploads2/' + uploadedImage.filename : currentImage
     };
-
-    writeConfig(config);
-    res.json({ success: true }); // alert вызывается во фронтенде
+    await setConfig(config);
+    res.json({ success: true });
   } catch (err) {
     console.error('Ошибка на сервере:', err);
     res.status(500).json({ success: false, error: 'Ошибка сервера' });
@@ -241,8 +272,7 @@ app.post('/admin/save-settings', uploadMain.single('image'), (req, res) => {
 });
 
 
-// В самом верху файла
-const fsPromises = require('fs/promises');
+
 
 async function cleanupUploadsDir() {
   try {
@@ -275,11 +305,7 @@ async function cleanupUploadsDir() {
   }
 }
 
-// Запускаем один раз при старте сервера
-cleanupUploadsDir();
 
-// А теперь — каждые 24 часа (24 ч * 60 мин * 60 сек * 1000 мс)
-setInterval(cleanupUploadsDir, 24 * 60 * 60 * 1000);
 
 require('dotenv').config();
 const TelegramBot = require('node-telegram-bot-api');
@@ -290,11 +316,7 @@ const BOT_TOKEN = process.env.BOT_TOKEN || '8090008947:AAGoI1DrVdHEhawbvQzbmcKu0
 const GROUP_ID  = process.env.GROUP_ID  || '-1002564808736';
 const bot = new TelegramBot(BOT_TOKEN);
 
-// Статика
-app.use(express.static(path.join(__dirname, 'public')));
 
-// Парсер JSON (ВАЖНО — до роутов)
-app.use(express.json());
 
 // Маршрут для формы заявки
 app.post('/request', async (req, res) => {
@@ -317,4 +339,12 @@ app.post('/request', async (req, res) => {
 
 
 /* ==================== ЗАПУСК СЕРВЕРА ==================== */
-app.listen(PORT, () => console.log(`Сервер работает на http://localhost:${PORT} 🔥`));
+if (require.main === module) {
+  app.listen(PORT, () => console.log(`Сервер работает на http://localhost:${PORT} 🔥`));
+  // Тёплый старт кэша и планировщик очистки
+  warmupCache();
+  cleanupUploadsDir();
+  setInterval(cleanupUploadsDir, 24 * 60 * 60 * 1000);
+}
+
+module.exports = app;
